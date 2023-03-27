@@ -1,0 +1,57 @@
+{
+  "select_language": "Hindi",
+  "Welcome to Baricata !": "h",
+  "Mail" : "h" ,
+  "Password": "パスhワード",
+  "Did you forget your password?": "h",
+  "Login": "h",
+  "Don't Have an account？": "h",
+  "Register":"h",
+
+
+  "Live preparation" :"ライブ準備",
+  "Start Live" : "ライブを開始",
+  "Live Stop" : "Live ",
+  "Home":"家",
+  "Setting" :"設定",
+  "Current Player List" : "現在のプレイヤーリスト",
+  "Rank" : "ランク",
+  "Name" : "名前",
+  "Operate" : "オペレーター",
+  "Point" : "点" ,
+  "Today this room Information" : "本日このお部屋のご案内",
+  "Big Win" : "大勝利" ,
+  "Points" : "ポイント",
+  "My Information" : "私の情報" ,
+  "Follower":"フォロワー",
+  "Live" : "ライブ",
+  "Chat History" : "チャット履歴" ,
+  "Special Bet" : "スペシャルベット" ,
+  "AMY's Birthday Number" : "エイミーの誕生日番号" ,
+
+
+  "Profile Image" : "プロフィール画像",
+  "Nick Name" : "ニックネーム",
+  "Birthday (Cannot be edited except for the first time)" : "誕生日（初回以外は編集不可）" ,
+  "Comment" : "コメント",
+  "Live Setting" : "ライブ設定",
+  "Edit" : "e",
+  "Camera" : "c" ,
+  "Face Time HD Camera" : "c" ,
+  "Microphone":"c",
+  "Airpods":"j",
+  "Speaker":"j",
+  "Table Color":"j",
+  "Green":"j",
+  "Purple":"j",
+  "Brown":"j",
+  "Frame Range Selection":"j",
+  "Recorded video upload while live is stopped":"j",
+  "A. Betting Time":"j",
+  "B. Roulette rotation time":"j",
+  "C. Result decision time":"j",
+  "Upload":"j"
+
+
+}
+

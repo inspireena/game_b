@@ -1,0 +1,71 @@
+const { date } = require("joi");
+const {Schema,Types,model}=require("mongoose");
+
+const gamesTranscetionSchema= Schema({
+    operator_player_id:{
+        type:String,
+        default:""
+    },
+    operator_name:{
+        type:String,
+        default:""
+    },
+    player_name:{
+        type:String,
+        default:""
+    },
+    player_id:{
+        type:String,
+        default:""
+    },
+    game_code:{
+        type:String,
+        default:""
+    },
+    opening_wallet_bal:{
+        type:Number,
+        default:0
+    },
+    closing_wallet_bal:{
+        type:Number,
+        default:0
+    },
+    amount:{
+        type:Number,
+        default:0
+    },
+    currency:{
+        type:String,
+        default:""
+    },
+    status:{
+        type:Number,
+        default:1
+    },
+    transaction_type:{
+        type:String, //"bet/refund/win/tip/canceled"
+        default:""
+    },
+    transaction_details:{
+        remarks:{
+            type:String,
+            default:""
+        },
+        session_id:{
+            type:String,
+            default:""
+        },
+        opr_txn_id:{
+            type:String,
+            default:""
+        },
+        bet_type:{
+            type:String,
+            default:""
+        }
+    }
+},{
+    versionKey:false,
+    timestamps:true
+});
+module.exports= model("games_transaction",gamesTranscetionSchema);
