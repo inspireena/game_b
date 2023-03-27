@@ -46,3 +46,21 @@ exports.streamerLoginData=async(req,res)=>{
         res.status(200).json({status:false,subCode:400,message:error.message});
     }
  }
+ exports.changeStreamerTableColor=async(req,res)=>{
+    try{
+        let resData = await service.changeStreamerTableColor(req);
+        res.status(200).json(resData);
+ 
+    }catch(error){
+        res.status(200).json({status:false,subCode:400,message:error.message});
+    }
+ }
+ exports.updateStreamerInfo=async(req,res)=>{
+    try{
+        let resData = await service.updateStreamerInfo(req);
+        res.status(200).json(resData);
+ 
+    }catch(error){
+        res.status(200).json({status:false,subCode:400,message:error.message});
+    }
+ }

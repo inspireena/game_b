@@ -7,21 +7,23 @@ const languageMap = {
   en: { label: "English", dir: "ltr", active: true },
   hd: { label: "Hindi", dir: "ltr", active: false },
   kr: { label: "Korean", dir: "ltr", active: false },
-  ja: { label: "japanese", dir: "ltr", active: false }
+  ja:{label: "japanese", dir:"ltr", active : false}
 };
 
 const LanguageSelect = () => {
-  const selected = (localStorage.getItem("i18nextLng") || "en").substring(0, 2);
+  const selected = (localStorage.getItem("i18nextLng") || "en").substring(0,2);
   const { t } = useTranslation();
-  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [menuAnchor, setMenuAnchor] =useState(null);
   useEffect(() => {
-    if (languageMap[selected]) { document.body.dir = languageMap[selected].dir };
+    if(languageMap[selected])
+   { document.body.dir = languageMap[selected].dir};
   }, [menuAnchor, selected]);
+console.log('language', languageMap[selected]);
   return (
     <div className="d-flex justify-content-end align-items-center language-select-root">
       <Button onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}>
         {/* reena */}
-        {languageMap[selected].label}
+        {languageMap[selected] && languageMap[selected].label}
         {/* <ArrowDropDown fontSize="small" /> */}
       </Button>
       <Popover

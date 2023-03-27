@@ -4,6 +4,9 @@ exports.loginJoiSchema = Joi.object({
     email:Joi.string().required().email(),
     password: Joi.string().required(),
 });
+exports.changeStreamerTableColorJoiSchema= Joi.object({
+    table_color:Joi.string().required()
+})
 
 // exports.gameStreamerInfoJoiSchema=Joi.object({
 //     game_code:Joi.string().optional()

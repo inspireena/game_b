@@ -179,7 +179,7 @@ exports.gameStreamerInfo=async(req,res)=>{
         // let roomInfoData= roomInfo.data || [];
         /// DAME DATA JSON  API import from PUBLIC FOLDER====END--------
         const getLastSessionData = await sessionModel.findOne({}).sort({createdAt:-1}).limit(1);
-        const checkLiveSession= await client.json_get(`Session:101-1679292425619`,'.users');
+        const checkLiveSession= await client.json_get(`Session:101-1679303948723`,'.users');
         let liveplayer=[];
         if(!checkLiveSession || checkLiveSession == null){
             liveplayer=[];
@@ -238,6 +238,69 @@ exports.gameStreamerInfo=async(req,res)=>{
             data:{
                 LivePlayerData:newPlayerList,
                 roomInfoData:playerList
+            }
+        }
+
+    }catch(error){
+        throw error;
+    }
+}
+exports.changeStreamerTableColor=async(req,res)=>{
+    try{
+        let {table_color}=req.body;
+        const update_streamerColor=await streamerModel.findOneAndUpdate({_id:req.user._id},{$set:{table_color:table_color}},{new:true});
+        if(update_streamerColor){
+            return{
+                status:true,
+                subCode:200,
+                message:"Table Color Update successfully !!"
+            }
+        }else{
+            return{
+                status:false,
+                subCode:404,
+                message:"Something Went Wrong , Table color not Change ! please try again Letter "
+            }
+        }
+
+    }catch(error){
+        throw error;
+    }
+}
+exports.updateStreamerInfo=async(req,res)=>{
+    try{
+        // let {email,phone,streamer_name,displayname,dateofbirth,description}=req.body;
+        if(req.body.dateofbirth) req.body.dateofbirth=new Date(req.body.dateofbirth).toISOString() ;
+        if(req.file.filename) req.body.image = `/${req.body.pathname}/${req.file.filename}`;
+        const updateStremerInfoRes=await streamerModel.findOneAndUpdate({_id:req.user._id},req.body,{new:true});
+        const resData=await streamerModel.aggregate([
+           { $match:{_id:req.user._id}},
+           {$project: {image:{$concat:[`${constant.BASE_URLS.NODE_URL}${constant.NODE_PORT}`,"$image"]},
+           email:1,
+           phone:1,
+           streamer_name:1,
+           displayname:1,
+           dateofbirth:1,
+           luckyno:1,
+           country:1,
+           description:1,
+           createdAt:1,
+           status:1,
+           updatedAt:1,
+           ranking:1}}
+        ])
+        if(updateStremerInfoRes){
+            return{
+                status:true,
+                subCode:200,
+                message:"Steamer Update Successfully !!",
+                data:resData
+            }
+        }else{
+            return{
+                status:false,
+                subCode:404,
+                message:"Something Went Wrong , Steamer can not Update ! please try again Letter  !!",
             }
         }
 

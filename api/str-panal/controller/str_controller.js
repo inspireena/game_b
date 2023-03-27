@@ -105,3 +105,29 @@ const { async } = require("q");
         res.send({status:false,subCode:400,message:error.message})
     }
  }
+ exports.changeStreamerTableColor=async(req,res)=>{
+    try{
+        if (req.header("Authorization")) {
+            token = req.header("Authorization").replace("Bearer ", "");
+            if (token) {
+                let config = {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    
+                }
+
+                const resData = await axios.post(`${constant.BASE_URLS.NODE_URL}${constant.NODE_PORT}/${constant.MIDDLE_URL.NODE_STR_MIDDLE}/change-streamer-table-color`,req.body, config);
+                console.log("---resData---", resData.data);
+                res.status(200).json(resData.data);
+            }else{
+                res.status(200).json({status:false,subCode:404,message:"Invalid Token"}); 
+            }
+        }else{
+            res.status(200).json({status:false,subCode:404,message:"Invalid Token"}); 
+        }
+
+    }catch(error){
+        res.send({status:false,subCode:400,message:error.message})
+    }
+ }

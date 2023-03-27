@@ -61,7 +61,10 @@ const Schema = mongoose.Schema({
     type: String,
     default: ''
   },
- 
+ table_color:{
+  type:String,
+  default:""
+ },
   type: {
     type: String,
     default: ''

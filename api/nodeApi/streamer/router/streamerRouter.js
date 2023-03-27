@@ -3,23 +3,24 @@ const router = express.Router();
 const fs=require("fs")
 const userAuth= require("../../../utity/middleware/userTokenAuth");
 // const {multer}=require("../../../utity/middleware/multer");
-const {registerStreamerData,streamerLoginData,gameList,userDetails,gameStreamerInfo} =require("../controller/str_controller");
-const {loginJoiSchema,gameStreamerInfoJoiSchema}=require("../joiSchema/str_joiSchema");
+const {registerStreamerData,streamerLoginData,gameList,userDetails,gameStreamerInfo,changeStreamerTableColor,updateStreamerInfo} =require("../controller/str_controller");
+const {loginJoiSchema,gameStreamerInfoJoiSchema,changeStreamerTableColorJoiSchema}=require("../joiSchema/str_joiSchema");
 const JoiResponse=require("../../../utity/middleware/joiResponse");
 const path=require("path")
 const multer=require("multer");
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        let pathname= "straemerimg";
+        let pathname= "streamerimg";
         if (!fs.existsSync(process.cwd()+`/public/apiPublic/${pathname}`)) {
            fs.mkdirSync(process.cwd()+`/public/apiPublic/${pathname}`)
         }
       req.body.pathname=pathname;
-      cb(null, `/${pathname}/`)
+      cb(null, `public/apiPublic/${pathname}/`)
     },
     filename: function (req, file, cb) {
       let extantion=file.fieldname.split('.').pop();
-      cb(null,`${Date.now()}.${extantion}`)
+      console.log("===file.fieldname====",file.fieldname);
+      cb(null,`${Date.now()}.png`)
     }
   })
   
@@ -32,5 +33,7 @@ router.post("/login-data",JoiResponse(loginJoiSchema),streamerLoginData);
 router.get("/game-list",userAuth,gameList);// unused
 router.get("/user-details",userAuth,userDetails)// unused
 router.post("/game-streamer-info",userAuth,gameStreamerInfo);
+router.post("/change-streamer-table-color",userAuth,JoiResponse(changeStreamerTableColorJoiSchema),changeStreamerTableColor);
+router.post("/update-streamer-info",userAuth,upload.single("image"),updateStreamerInfo);
 
 module.exports=router;

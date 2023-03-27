@@ -9,14 +9,14 @@ function UploadModal(props) {
                     <div className="modal-content">
                         <h6>Report</h6>
                         <div class="form">
-                            {/* <input type="checkbox" />
+                            {/* <input type="checkbox"  />
                             <label for="">Nuisance</label><br />
                             <input type="checkbox" />
                             <label for="">Suspicion of gambling addiction</label> */}
                              <input type="text" placeholder="Enter Video Name" />
-                            <label for="">Nuisance</label><br />
+                            {/* <label for="">Nuisance</label><br /> */}
                             <input type="file" />
-                            <label for="">Suspicion of gambling addiction</label>
+                            {/* <label for="">Suspicion of gambling addiction</label> */}
                         </div>
                     </div>
                     <div className="modal-btn">

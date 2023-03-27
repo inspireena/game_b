@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
-import LanguageSelect from "../../languageSelect"
 import { getApi } from "../../utils/ApiInstanse"
 import TimerModal from "./TimerModal"
+import { io } from "socket.io-client";
+// import Chat from "../chat/Chat"
+const socket = io("ws://localhost:8000");
 
 function StreamerIndex(props) {
     const navigate = useNavigate()
@@ -13,7 +15,10 @@ function StreamerIndex(props) {
     // const [bigWin, setBigWin] = useState()
     const [roomInfoPoints, setRoomInfoPoints] = useState()
     const [isLiveStart, setIsLiveStart] = useState(false)
+    const [text, setText] = useState("");
+    const [messageData, setMessageData] = useState([]);
     const Ref = useRef()
+    const divRef = useRef(null);
     const { t } = useTranslation();
     const { token } = JSON.parse(localStorage.getItem('loggedin'));
     let authToken = token;
@@ -30,6 +35,13 @@ function StreamerIndex(props) {
         ranking,
         video_streaming_url } = JSON.parse(localStorage.getItem('streamer_details'))
     let bigWin = [{ name: 'a', points: '3000' }, { name: 'b', points: '2000' },]
+
+    useEffect(() => {
+        var streamerData = JSON.parse(localStorage.getItem('streamer_details'))
+        console.log(streamerData);
+        socket.emit("streamerDetail", streamerData);
+
+    }, [])
 
 
     // , { 'Authorization': authToken }
@@ -51,11 +63,7 @@ function StreamerIndex(props) {
             })
             .catch((err) => { console.log(err) })
     }, [])
-    const handleLogout = () => {
-        localStorage.removeItem('loggedin')
-        localStorage.removeItem('streamer_details')
-        navigate('/')
-    }
+
     const handleLive = () => {
         setIsTimer(true)
         if (Ref.current) {
@@ -75,46 +83,47 @@ function StreamerIndex(props) {
     const handleStopLive = () => {
         setIsLiveStart(false)
     }
-    const handleHome = () => {
-        props.setMenu('home')
-    }
-    const handleSetting = () => {
-        props.setMenu('setting')
-    }
+
+    useEffect(() => {
+        socket.on("allMessages", (data) => {
+            console.log('datainUseE------', data);
+            setMessageData(data);
+        });
+
+    }, [messageData])
+    useEffect(() => {
+        divRef.current.scrollTop = divRef.current.scrollHeight;
+    }, [messageData]);
+
+
+    const sendChat = (e) => {
+        // alert("okk")
+        if (text != "") {
+            var data = {
+                message: text,
+                streamer_name: streamer_name,
+                email: email,
+                phone: phone,
+                image: image,
+                time: new Date().toISOString(),
+            };
+            setMessageData([...messageData, data]);
+            socket.emit("messages", data);
+            setText("");
+
+        }
+    };
+
+    console.log("messagedata---", messageData)
     return (
         <>
             <meta charSet="UTF-8" />
             <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <title>{t("Live preparation")}</title>
-            {/* language select */}
-            {/* <div style={{
-                position: 'fixed',
-                right: '0rem',
-            }}>
-                <LanguageSelect />
-            </div> */}
-           {isTimer && <TimerModal setIsLiveStart={setIsLiveStart} isTimer={isTimer} setIsTimer={setIsTimer} timer={timer} setTimer={setTimer} Ref={Ref} />}
-            <div className="nav_bar">
+            {isTimer && <TimerModal setIsLiveStart={setIsLiveStart} isTimer={isTimer} setIsTimer={setIsTimer} timer={timer} setTimer={setTimer} Ref={Ref} />}
 
-
-                <a href="#" className="navbar-logo">
-                    Baricata
-                </a>
-                <div className="nav-item">
-                    <a className="nav-link active" onClick={handleHome} style={{ cursor: 'pointer' }}>
-                        <i className="fa-solid fa-house" /> {t("Home")}
-                    </a>
-                    <a className="nav-link" onClick={handleSetting} style={{ cursor: 'pointer' }} >
-                        <i className="fa-solid fa-gear" /> {t("Setting")}
-                    </a>
-                    <a className="nav-link" href="#" onClick={handleLogout}>
-                        {/* <i className="fa-solid fa-gear" />  */}
-                        {t("logout")}
-                    </a>
-                </div>
-            </div>
-            <div className="full_page" style={{ position: 'relative'}}>
+            <div className="full_page" style={{ position: 'relative' }}>
                 <div className="top-section">
                     <div className="das-title">
                         <h1>{t("Live preparation")}</h1>
@@ -334,158 +343,38 @@ function StreamerIndex(props) {
                                     <h5>{t("Chat History")}</h5>
                                     <div className="content">
                                         <div className="text">
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>
-                                                        はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜はろはろ〜</p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>
-                                                        はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜</p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜はろはろ〜</p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>
-                                                        はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜はろはろ〜</p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>
-                                                        はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜</p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜はろはろ〜</p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>
-                                                        はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜はろはろ〜</p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>
-                                                        はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜はろはろ〜
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜</p>
-                                                </li>
-                                            </ul>
-                                            <ul>
-                                                <li>
-                                                    <img src="assets/img/Ellipse 2.png" alt="" />
-                                                </li>
-                                                <li>
-                                                    <h6>ともひろ</h6>
-                                                    <p>はろはろ〜はろはろ〜</p>
-                                                </li>
-                                            </ul>
+                                            {/* Map for chat */}
+                                            <div ref={divRef} style={{ overflowY: "hidden", height: "822px" }}>
+                                                {messageData && messageData.length > 0 ? messageData.map((msgDta, index) => {
+                                                    return (<ul>
+                                                        <li>
+                                                            <img src="assets/img/Ellipse 2.png" alt="" />
+                                                        </li>
+                                                        <li>
+                                                            <h6>{msgDta.streamer_name}</h6>
+                                                            <p>{msgDta.message}</p>
+                                                        </li>
+                                                    </ul>)
+
+                                                }) : null}</div>
                                         </div>
+
                                     </div>
+                                </div>
+                                <div className="send-msg">
+                                    <input
+                                        type="text"
+                                        placeholder="Comment"
+                                        maxLength={200}
+                                        value={text}
+                                        onKeyPress={(e) => (e.key == "Enter" ? sendChat() : null)}
+                                        onChange={(event) => setText(event.target.value)}
+                                    />
+
                                 </div>
                             </div>
                         </div>
+                        {/* <Chat divRef={divRef} messageData={messageData} setMessageData ={setMessageData} text ={text} setText={setText}/> */}
                     </div>
                 </div>
             </div>
