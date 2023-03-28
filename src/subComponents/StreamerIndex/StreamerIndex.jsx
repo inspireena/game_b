@@ -22,6 +22,7 @@ function StreamerIndex(props) {
     const { t } = useTranslation();
     const { token } = JSON.parse(localStorage.getItem('loggedin'));
     let authToken = token;
+    
     const { streamer_name,
         phone,
         email,
@@ -34,6 +35,7 @@ function StreamerIndex(props) {
         points,
         ranking,
         video_streaming_url } = JSON.parse(localStorage.getItem('streamer_details'))
+
     let bigWin = [{ name: 'a', points: '3000' }, { name: 'b', points: '2000' },]
 
     useEffect(() => {

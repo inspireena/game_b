@@ -66,24 +66,25 @@ function Setting(props) {
             })
             .catch(err=>console.log(err))
     }
-    // let formData = FormData.set(phone , streamer_name, displayname, dateofbirth, image)
-    // console.log('formData====', formData);
-    // const filepath = 'my-filepath';
+
     let streamerInfoUpdates = new FormData();
     streamerInfoUpdates.append("email",streamerDetails.email);
     streamerInfoUpdates.append("phone" ,  streamerDetails.phone);
-    streamerInfoUpdates.append("streamer_name" , streamerDetails.streamer_name);
+    streamerInfoUpdates.append("streamer_name" , streamerName);
     streamerInfoUpdates.append("displayname" ,streamerDetails.streamerName);
     streamerInfoUpdates.append("dateofbirth" , streamerDetails.dateofbirth);
-    streamerInfoUpdates.append("description" ,streamerDetails.comment);
+    streamerInfoUpdates.append("description" ,comment);
     streamerInfoUpdates.append("image" , profileImg);
     let {token} = JSON.parse(localStorage.getItem('loggedin'))
     const headers = {
         'Authorization': token
       }
+
     const handleSave = () => {
         setIsEdit(false)
+
         console.log('name in==', streamerName, 'and comment===', comment)
+   
         axios.post('http://localhost:7000/strApi/update-streamer-info', streamerInfoUpdates ,{
             headers: headers
           })
@@ -94,7 +95,7 @@ function Setting(props) {
             streamerDetails.image = response.data.data[0].image
             streamerDetails.description= response.data.data[0].description
             // localStorage.removeItem('streamer_details')
-            localStorage.setItem('streamer_Info', JSON.stringify({...streamerDetails}))
+            localStorage.setItem('streamer_details', JSON.stringify({...streamerDetails}))
             }
             console.log('info ibject--------', streamerDetails);
         })
@@ -177,7 +178,7 @@ function Setting(props) {
                                     <div className="profile">
                                       <div style={{display:"flex"}}>
                                       {/* <img src={process.env.PUBLIC_URL + "/assets/img/profile.png"} /> */}
-                                      <img src={base64URL} style={{height: '8rem'}}/>
+                                      <img src={profileImg} style={{height: '8rem'}}/>
                                         {isEdit && <Button 
                                         variant="primary" 
                                         onClick={handleShow}

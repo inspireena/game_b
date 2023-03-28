@@ -19,15 +19,12 @@ options.cors = { origin: ['http://localhost:3000'] };
 
 const io = socketIo(options).listen(server);
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
 
 // app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 
 // catch 404 and forward to error handler
@@ -36,29 +33,29 @@ app.use(express.static(path.join(__dirname, 'public')));
 // });
 
 // error handler
-app.use(function (err, req, res, next) {
+// app.use(function (err, req, res, next) {
   // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // res.locals.message = err.message;
+  // res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
+let roomName = '192.168.0.85-1-chat';
 io.on("connection", (socket) => {
   console.log('In connection');
 
   socket.on("streamerDetail", async (data) => {
     console.log('data from client of streamer==', data);
 
-    let roomName = '192.168.0.85-1-chat';
+  
     socket.join(roomName);
 
     var getData = await client.json_get(`ChatRoom:${roomName}`);
     // io.to(roomName).emit("msg", getData);
     
-    if (getData == null) {
+    if (!getData) {
       await client.json_set(`ChatRoom:${roomName}`, ".", []);
     }else{
       // io.in(roomName).emit("msg", getData);
@@ -66,6 +63,7 @@ io.on("connection", (socket) => {
       io.to(roomName).emit("allMessages", getData)
     }
 
+  });
 
     socket.on("messages",async (msgData)=>{
       await client.json_arrappend(`ChatRoom:${roomName}`, ".", msgData);
@@ -75,10 +73,10 @@ io.on("connection", (socket) => {
       console.log("getData------",messageData);
       console.log("roomName--",roomName);
       // io.in(roomName).emit("msg", getData);
-      io.to(roomName).emit("allMessages", getData);
+      io.to(roomName).emit("allMessages", messageData);
     })
 
-  });
+  
 
 });
 

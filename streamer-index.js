@@ -14,6 +14,5 @@ require("./api/str-panal/router")(app);
 const PORT=constant.STREAMER_PORT;
 app.listen(PORT,()=>{
     // console.log("ip---",ip);
-
     console.log("----- server start on PORT---[ streamer ]--",PORT);
 });
