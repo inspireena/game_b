@@ -37,6 +37,7 @@ function Login() {
         if (response && response.data && response.data.status) {
           localStorage.setItem('loggedin', JSON.stringify({ token: response.data.data.token }))
           localStorage.setItem('streamer_details', JSON.stringify({
+            streamer_id: response.data.data._id,
             streamer_name: response.data.data.streamer_name,
             phone: response.data.data.phone,
             email: response.data.data.email,
@@ -48,7 +49,15 @@ function Login() {
             image: response.data.data.image,
             points: response.data.data.points,
             ranking: response.data.data.ranking,
-            video_streaming_url: response.data.data.video_streaming_url
+            video_streaming_url: response.data.data.video_streaming_url,
+            table_color: response.data.data.table_color,
+            game_code: response.data.data.game_code,
+            luckyno: response.data.data.luckyno,
+            country: response.data.data.country,
+            type: response.data.data.type,
+            permission: response.data.data.permission,
+            updatedAt: response.data.data.updatedAt,
+            createdAt: response.data.data.createdAt
           }))
           // navigate('/dashboard')
           window.location.replace('/dashboard')
@@ -77,7 +86,7 @@ function Login() {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>login Section</title>
-      {/* language select */}
+
       <div style={{
         position: 'fixed',
         right: '0rem',
@@ -109,12 +118,12 @@ function Login() {
             <div className="btn">
               {/* <form action="" method="get"> */}
               <button className="save-btn" type="submit" onClick={handleLogin}>
-               {t("Login")}
+                {t("Login")}
               </button>
               {/* </form> */}
             </div>
             <p>
-             {t("Don't Have an account？")}<a href="#">{t("Register")}</a>
+              {t("Don't Have an account？")}<a href="#">{t("Register")}</a>
             </p>
           </div>
         </div>

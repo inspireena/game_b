@@ -1,6 +1,6 @@
 import { useState } from "react"
-import StreamerIndex from "../subComponents/StreamerIndex/StreamerIndex";
-import Setting from "../subComponents/Setting/Setting";
+import StreamerIndex from "../subComponents/streamerIndex/StreamerIndex";
+import Setting from "../subComponents/setting/Setting";
 import Header from "../common/Header";
 
 function Dashboard() {

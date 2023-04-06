@@ -4,14 +4,15 @@ const constant = require("../constant/constant");
 
 const Auth = async (req, res, next) => {
     try {
-        console.log("---b2b----auth---req.url---------",req.url)
+        console.log("---steamer----auth---req.url---------",req.url)
+        console.log("---steamer----auth---req.body---------",req.body)
 
            let token = req.header("Authorization").replace("Bearer ", "");
             console.log("--------token ---------",token);
             if (token) {
                     const decoded = jwt.verify(token, constant.JWT_SECRETKEY);
                     const user = await streamerModel.findOne({ _id: decoded.id, token: token });
-                    console.log("----user---",user);
+                   
                     if (!user) {
                         return   res.send({ status: false, subCode: 401, message: 'Invalid Authantication' })
                     }else{

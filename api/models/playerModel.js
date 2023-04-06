@@ -36,6 +36,30 @@ const userPlayerSchema = Schema({
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    chet_block_info: {
+        chet_block_status: {
+          type: Boolean,
+          default: false
+        },
+        block_by_steamer: [
+            {
+              type: String,
+              // ref: "streamer"
+            }
+          ]
+    },
+    addicted_block_info: {
+        addicted_block_status: {
+          type: Boolean,
+          default: false
+        },
+        block_by_steamer: [
+            {
+              type: String,
+              // ref: "streamer"
+            }
+          ]
     }
 }, {
     versionKey: false,

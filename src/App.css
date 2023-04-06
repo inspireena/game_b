@@ -684,13 +684,63 @@ left: 290px;
 
 .modal-btn button {
   color: #fff;
-  background: #ff4d4f;
+  /* background: #ff4d4f; */
   border-radius: 8px;
   border: none;
-  padding: 10px 78px;
+  padding: 10px 50px;
 }
 
+.upload-vdo {
+  display: flex;
+  justify-content: space-between;
+  gap: 60px;
+  overflow: auto;
+}
 
+.upload-vdo .text .heading {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.upload-vdo .text .heading h5 {
+  font-size: 12px;
+}
+
+.upload-vdo button {
+  background: linear-gradient(180deg, #FF27C3 0%, #9747FF 100%);
+  border-radius: 8px;
+  padding: 2px 25px;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.text .link {
+  padding: 5px 0;
+}
+
+.text .link p {
+  margin-bottom: 0;
+  font-size: 13px;
+}
+
+.text .link span {
+  padding-left: 24px;
+  font-size: 13px;
+}
+
+.text .link i {
+  background: linear-gradient(180deg, #FF27C3 0%, #9747FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.content-card {
+  margin-bottom: 10px;
+}
 /*------Responsive------*/
 
 @media (max-width: 992px) {

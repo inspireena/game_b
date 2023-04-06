@@ -10,7 +10,7 @@ function GameSelectionIndex(props) {
   useEffect(() => {
     getApi('/game-list')
       .then((response) => {
-        console.log('game-list-response====', response.data.data);
+        // console.log('game-list-response====', response.data.data);
         if (response && response.data && response.data.data && response.data.data.length >= 0) {
           setGameList(response.data.data)
         }

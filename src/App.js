@@ -9,13 +9,20 @@ import Header from './common/Header';
 
 function App() {
   let router = createBrowserRouter([
-    {path :'/',
-  element :<Login/>},
-  {path :'/trial',
-  element :<Header/>},
+    {
+    path :'/',
+    element :<Login/>
+  },
+  
+  {
+    path :'/trial',
+    element :<Trial/>
+},
 
-  {path :'/dashboard',
-element :<Dashboard/>}
+  {
+    path :'/dashboard',
+    element :<Dashboard/>
+}
   ])
   return (<RouterProvider router ={router}/> );
 }

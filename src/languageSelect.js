@@ -18,7 +18,7 @@ const LanguageSelect = () => {
     if(languageMap[selected])
    { document.body.dir = languageMap[selected].dir};
   }, [menuAnchor, selected]);
-console.log('language', languageMap[selected]);
+// console.log('language', languageMap[selected]);
   return (
     <div className="d-flex justify-content-end align-items-center language-select-root">
       <Button onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}>

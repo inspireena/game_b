@@ -7,9 +7,9 @@ const rejson =require('ioredis-rejson');
 
 
 const client = new rejson({
-  host: "redis-18803.c212.ap-south-1-1.ec2.cloud.redislabs.com",
-  port: 18803,
-  password: "MASw2wA9GnT6RFCYUK91Ma5bL5LETIzK",
+  host: "redis-18030.c8.us-east-1-4.ec2.cloud.redislabs.com",
+  port: 18030,
+  password: "DTbD4hH6LWiwOZQw0UAd3D9RzDbaPUPS",
   });
 
 // try{

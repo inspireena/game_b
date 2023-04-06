@@ -18,19 +18,30 @@ function Header(props) {
     return (
         <div className="nav_bar">
 
-            <a href="#" className="navbar-logo">
-                Baricata
+            <a className="navbar-logo">
+                {t("Baricata")}
             </a>
             <div className="nav-item">
-                <a className="nav-link active" onClick={handleHome} style={{ cursor: 'pointer' }}>
+                <a 
+                className="nav-link active" 
+                onClick={handleHome} 
+                style={{ cursor: 'pointer', color : props.menu==='home' ? 'black' : 'white'
+                 }}>
                     <i className="fa-solid fa-house" /> {t("Home")}
                 </a>
-                <a className="nav-link" onClick={handleSetting} style={{ cursor: 'pointer' }} >
+                <a 
+                className="nav-link" 
+                onClick={handleSetting} 
+                style={{ cursor: 'pointer' ,color : props.menu==='setting' ? 'black' : 'white'
+                 }} >
                     <i className="fa-solid fa-gear" /> {t("Setting")}
                 </a>
-                <a className="nav-link" href="#" onClick={handleLogout}>
-                    {/* <i className="fa-solid fa-gear" />  */}
-                    {t("logout")}
+                <a 
+                className="nav-link" 
+                 onClick={handleLogout}
+                 style={{cursor:'pointer'}}>
+                <i class="fa-solid fa-right-from-bracket"/>
+                    {t(" logout")}
                 </a>
             </div>
         </div>

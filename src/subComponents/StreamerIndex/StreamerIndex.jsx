@@ -1,16 +1,21 @@
+
+import LiveSection from "./LiveSection";
+import ChatSection from "./ChatSection";
+import InfoSection from "./InfoSection";
+import React from "react";
+import Webcam from "react-webcam";
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router-dom"
 import { getApi } from "../../utils/ApiInstanse"
 import TimerModal from "./TimerModal"
-import { io } from "socket.io-client";
-// import Chat from "../chat/Chat"
-const socket = io("ws://localhost:8000");
+import AgoraRTC from "agora-rtc-sdk-ng";
+import axios from 'axios';
+// require('dotenv').config({path:".env.local"});
+// const dotenv=require("dotenv").config({path:".env.local"});
 
 function StreamerIndex(props) {
-    const navigate = useNavigate()
     const [isTimer, setIsTimer] = useState(false)
-    const [timer, setTimer] = useState('3')
+    const [timer, setTimer] = useState('6')
     const [livePlayerInfo, setLivePlayerInfo] = useState()
     // const [bigWin, setBigWin] = useState()
     const [roomInfoPoints, setRoomInfoPoints] = useState()
@@ -20,38 +25,21 @@ function StreamerIndex(props) {
     const Ref = useRef()
     const divRef = useRef(null);
     const { t } = useTranslation();
-    const { token } = JSON.parse(localStorage.getItem('loggedin'));
-    let authToken = token;
-    
-    const { streamer_name,
-        phone,
-        email,
-        status,
-        displayname,
-        dateofbirth,
-        description,
-        followers,
-        image,
-        points,
-        ranking,
-        video_streaming_url } = JSON.parse(localStorage.getItem('streamer_details'))
-
+    const [isBlockModal, setIsBlockModal] = useState(false)
+    const [isLive, setIsLive] = useState(false)
+    const [isNuisance, setIsNuisance] = useState(false)
+    const [isAddicted, setIsAddicted] = useState(false)
+    const [nuisance, setNuisance] = useState('')
+    const [addicted, setAddicted] = useState('')
+    const[playerId,setPlayerId] = useState(null)
+    const[playerName, setPlayerName] = useState()
     let bigWin = [{ name: 'a', points: '3000' }, { name: 'b', points: '2000' },]
 
-    useEffect(() => {
-        var streamerData = JSON.parse(localStorage.getItem('streamer_details'))
-        console.log(streamerData);
-        socket.emit("streamerDetail", streamerData);
 
-    }, [])
-
-
-    // , { 'Authorization': authToken }
+ const streamerDetails = JSON.parse(localStorage.getItem('streamer_details'))
     useEffect(() => {
         getApi('/game-streamer-info')
             .then((response) => {
-                console.log('streamer======', response.data.data);
-
                 if (response && response.data && response.data.data && response.data.data.LivePlayerData) {
                     setLivePlayerInfo(response.data.data.LivePlayerData)
                 }
@@ -59,7 +47,6 @@ function StreamerIndex(props) {
                     setRoomInfoPoints(response.data.data.roomInfoData)
                 }
                 if (response && response.data && response.data.data && response.data.data.roomInfo && response.data.data.roomInfo.length >= 0 && response.data.data.roomInfo[0] && response.data.data.roomInfo[0].points && response.data.data.roomInfo[0].points.length >= 0) {
-                    // setRoomInfoPoints(response.data.data.roomInfo[0].points)
                 }
 
             })
@@ -67,6 +54,7 @@ function StreamerIndex(props) {
     }, [])
 
     const handleLive = () => {
+        // setIsLive(true);
         setIsTimer(true)
         if (Ref.current) {
             clearInterval(Ref.current)
@@ -74,56 +62,213 @@ function StreamerIndex(props) {
         const id = setInterval(() => { setTimer(pre => pre - 1) }, 1000)
         Ref.current = id;
     }
-    // if (timer === 0) {
-    //     clearInterval(Ref.current)
-    //     setTimer(2)
-    //     setIsTimer(false)
-    //     alert('TimeOut')
-    //     setIsLiveStart(true)
-    // }
-
     const handleStopLive = () => {
         setIsLiveStart(false)
+        setIsLive(false)
     }
 
-    useEffect(() => {
-        socket.on("allMessages", (data) => {
-            console.log('datainUseE------', data);
-            setMessageData(data);
-        });
+    // -----------------------------------------------------------------------
+    let options = {
+        token: '',
+        appId: '49ad4f30ade841489b15734c1365ca09',
+        role: '',
+        channel: '',
+        uid: 0
+    }
 
-    }, [messageData])
-    useEffect(() => {
-        divRef.current.scrollTop = divRef.current.scrollHeight;
-    }, [messageData]);
+    let channelParameters = {
+        localVideoTrack: null,
+        localAudioTrack: null,
+        // remoteAudioTrack: null,
+        // remoteVideoTrack: null,
+        // remoteUserId: null
+    }
 
+    const localContainer = document.createElement('div');
+    // const remoteContainer = document.createElement('div');
 
-    const sendChat = (e) => {
-        // alert("okk")
-        if (text != "") {
-            var data = {
-                message: text,
-                streamer_name: streamer_name,
-                email: email,
-                phone: phone,
-                image: image,
-                time: new Date().toISOString(),
-            };
-            setMessageData([...messageData, data]);
-            socket.emit("messages", data);
-            setText("");
+    localContainer.id = options.uid;
+    // Set the textContent property of the local video container to the local user id.
+    localContainer.textContent = "Local user " + options.uid;
 
+    localContainer.style.width = "360px";
+    localContainer.style.height = "720px";
+    localContainer.style.padding = "15px 5px 25px 5px";
+    // Set the remote video container size.
+    // remoteContainer.style.width = "360px";
+    // remoteContainer.style.height = "480px";
+    // remoteContainer.style.padding = "15px 5px 25px 5px";
+
+    const agoraEngine = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
+
+    // agoraEngine.on('user-published', async(user, mediaType) => {
+    //     await agoraEngine.subscribe(user, mediaType);
+    //     if (mediaType === 'video')
+    //     {
+    //         channelParameters.remoteVideoTrack = user.videoTrack;
+    //     channelParameters.remoteAudioTrack = user.audioTrack;
+    //     // Save the remote user id for reuse.
+    //     channelParameters.remoteUserId = user.uid.toString();
+    //     // Specify the ID of the DIV container. You can use the uid of the remote user.
+    //     remoteContainer.id = user.uid.toString();
+    //     channelParameters.remoteUserId = user.uid.toString();
+    //     remoteContainer.textContent = "Remote user " + user.uid.toString();
+    //     document.getElementById('live-video').append(remoteContainer);
+
+    //     if(options.role !== 'host')
+    //     {
+    //         // Play the remote video track.
+    //         channelParameters.remoteVideoTrack.play(remoteContainer);
+    //     }
+
+    //     }
+    //     if (mediaType === 'audio')
+    //     {
+    //         channelParameters.remoteAudioTrack = user.audioTrack;
+    //         channelParameters.remoteAudioTrack.play();
+    //     }
+
+    //     agoraEngine.on("user-unpublished", user => {
+    //         console.log(user.uid+ "has left the channel");
+    //     });
+    // });
+
+    async function handleJoinClick() {
+        handleHostClick();
+
+        if (options.role === '') {
+            window.alert("Select a user role first!");
+            return;
         }
+
+        const currentTime = Math.floor(Date.now() / 1000);
+        options.channel = streamerDetails.streamer_id + currentTime;
+
+        await axios.post('http://localhost:7001/authentication/token', {channelName: options.channel})
+            .then((response) => {
+                options.token = response.data.generatedToken
+                console.log(response);
+            })
+            .catch(err => console.log(err));
+          
+
+
+        // Join a channel.
+        await agoraEngine.join(options.appId, options.channel, options.token, options.uid);
+        // Create a local audio track from the audio sampled by a microphone.
+        channelParameters.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        // Create a local video track from the video captured by a camera.
+        channelParameters.localVideoTrack = await AgoraRTC.createCameraVideoTrack();
+        // Append the local video container to the page body.
+        document.getElementById('live-video').append(localContainer);
+
+        // Publish the local audio and video track if the user joins as a host.
+        if (options.role === 'host') {
+            // Publish the local audio and video tracks in the channel.
+            await agoraEngine.publish([channelParameters.localAudioTrack, channelParameters.localVideoTrack]);
+            // Play the local video track.
+            channelParameters.localVideoTrack.play(localContainer);
+            // console.log("publish success!");
+        }
+    }
+
+    if (isLive) {
+        handleJoinClick();
+        // setIsTrue(true);
+    }
+    // if (!props.isLive && isTrue) {
+    //     handleLeaveClick();
+    // }
+
+
+    // React.useEffect(() => {
+    //     handleJoinClick();
+    // }, [props.isLive]);
+
+
+    async function handleLeaveClick() {
+
+        // console.log(channelParameters.localAudioTrack);
+        // console.log(channelParameters.localVideoTrack);
+        if (channelParameters.localAudioTrack !== null && channelParameters.localVoiceTrack !== null) {
+            channelParameters.localAudioTrack.close();
+            channelParameters.localVideoTrack.close();
+        }
+        // Remove the containers you created for the local video and remote video.
+        // removeVideoDiv(remoteContainer.id);
+        removeVideoDiv(localContainer.id);
+        // Leave the channel
+        await agoraEngine.leave();
+        // console.log("You left the channel");
+        // Refresh the page for reuse
+        // window.location.reload();
+        setIsLiveStart(false)
+        setIsLive(false)
+    }
+
+    async function handleHostClick() {
+        // Save the selected role in a variable for reuse.
+        options.role = 'host';
+        // Call the method to set the role as Host.
+        await agoraEngine.setClientRole(options.role);
+        if (channelParameters.localVideoTrack !== null) {
+            // Publish the local audio and video track in the channel.
+            await agoraEngine.publish([channelParameters.localAudioTrack, channelParameters.localVideoTrack]);
+            // Stop playing the remote video.
+            //  channelParameters.remoteVideoTrack.stop();
+            // Start playing the local video.
+            channelParameters.localVideoTrack.play(localContainer);
+        }
+    }
+
+    // async function handleAudienceClick(){
+    //     if (document.getElementById('audience').checked)
+    //     {
+    //         // Save the selected role in a variable for reuse.
+    //         options.role = 'audience';
+    //         if(channelParameters.localAudioTrack !== null && channelParameters.localVideoTrack !== null)
+    //         {
+    //             if(channelParameters.remoteVideoTrack!==null)
+    //             {
+    //                 // Replace the current video track with remote video track
+    //                 await channelParameters.localVideoTrack.replaceTrack(channelParameters.remoteVideoTrack, true);
+    //             }
+    //         }
+    //         // Call the method to set the role as Audience.
+    //         await agoraEngine.setClientRole(options.role);
+    //     }
+    // }
+
+    function removeVideoDiv(id) {
+        // console.log("Removing " + id + "Div");
+        let Div = document.getElementById(id);
+        if (Div) {
+            Div.remove();
+        }
+    }
+    const videoConstraints = {
+        width: 360,
+        height: 720,
+        facingMode: "user"
     };
 
-    console.log("messagedata---", messageData)
+
     return (
         <>
             <meta charSet="UTF-8" />
             <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
             <title>{t("Live preparation")}</title>
-            {isTimer && <TimerModal setIsLiveStart={setIsLiveStart} isTimer={isTimer} setIsTimer={setIsTimer} timer={timer} setTimer={setTimer} Ref={Ref} />}
+
+            {isTimer && <TimerModal
+                setIsLiveStart={setIsLiveStart}
+                isTimer={isTimer} setIsTimer={setIsTimer}
+                timer={timer} setTimer={setTimer}
+                Ref={Ref}
+                isLive={isLive} setIsLive={setIsLive}
+            />
+            }
 
             <div className="full_page" style={{ position: 'relative' }}>
                 <div className="top-section">
@@ -136,7 +281,7 @@ function StreamerIndex(props) {
                         </div>}
                     {isLiveStart &&
                         <div className="button stop-btn " style={{ marginRight: '11rem' }} >
-                            <button onClick={handleStopLive}>{t("Live Stop")}</button>
+                            <button onClick={handleLeaveClick}>{t("Live Stop")}</button>
                             <div className="stream">
                                 <img src="assets/img/dot.png" alt="" />
                                 <h5>{t("Streaming Now")}</h5>
@@ -146,125 +291,31 @@ function StreamerIndex(props) {
                 </div>
                 <div className="container-fluid px-lg-5">
                     <div className="row">
-                        <div className="col-lg-4">
-                            <div className="content-card">
-                                <div className="card-title">
-                                    <h5>{t("Current Player List")}</h5>
-                                </div>
-                                <div className="content">
-                                    <div className="header">
-                                        <ul>
-                                            <li>{t("Rank")}</li>
-                                            <li>{t("Name")}</li>
-                                            <li>{t("Operate")}</li>
-                                            <li>{t("Point")}</li>
-                                        </ul>
-                                    </div>
-                                    {livePlayerInfo && livePlayerInfo.map((value, index) => {
-                                        return (
-                                            <div className="card-text">
-                                                <ul>
-                                                    <li>
-                                                        <strong>{index + 1}</strong>
-                                                    </li>
-                                                    <li>
-                                                        <img src="assets/img/Ellipse 2.png" alt="" />
-                                                        {value.player_name
-                                                        }
-                                                    </li>
-                                                    <li>{value.operator_name
-                                                    }</li>
-                                                    <li>{value.total_points}</li>
-                                                </ul>
-                                            </div>
-                                        )
-                                    })}
-                                    <div className="card-text">
-                                        <ul>
-                                            <li>
-                                                <strong>1</strong>
-                                            </li>
-                                            <li>
-                                                <img src="assets/img/Ellipse 2.png" alt="" />
-                                                ともひろ
-                                            </li>
-                                            <li>220,000pt</li>
-                                            <li>220,000pt</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="content-card">
-                                <div className="card-title">
-                                    <h5>{t("Today this room Information")}</h5>
-                                </div>
-                                <div className="content" style={{ padding: "20px 25px" }}>
-                                    <div className="row pt-4">
-                                        <div className="col-lg-6">
-                                            <h5>{t("Big Win")}</h5>
-                                            {bigWin && bigWin.map((value, index) => {
-                                                return (
-                                                    <div key={index}>
-                                                        <ul className="num">
-                                                            <li>{value.name}</li>
-                                                            <li>{value.points}</li>
-                                                        </ul>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                        <div className="col-lg-6">
-                                            <h5>{t("Points")}</h5>
-
-                                            {roomInfoPoints && roomInfoPoints.map((value, index) => {
-                                                return (
-                                                    <>
-                                                        <ul className="num">
-                                                            <li>{value.player_name}</li>
-                                                            <li>{value.total_points}</li>
-                                                        </ul>
-                                                    </>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="content-card" style={{ height: 238 }}>
-                                <div className="card-title">
-                                    <h5>{t("My Information")}</h5>
-                                </div>
-                                <div className="content info_box">
-                                    <div className="row">
-                                        <div className="col-lg-6">
-                                            <h5>{t("Rank")}</h5>
-                                            <ul>
-                                                <li>{t("Today")}</li>
-                                                <li>{ranking}</li>
-                                                <li>{points}</li>
-                                            </ul>
-                                            <ul>
-                                                <li>Week</li>
-                                                <li>1st</li>
-                                                <li>70,000pt</li>
-                                            </ul>
-                                        </div>
-                                        <div className="col-lg-6">
-                                            <h5>{t("Follower")}</h5>
-                                            <ul>
-                                                <li>{followers}</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4">
+                        <InfoSection
+                            livePlayerInfo={livePlayerInfo} setLivePlayerInfo={setLivePlayerInfo}
+                            bigWin={bigWin}
+                            roomInfoPoints={roomInfoPoints} setRoomInfoPoints={setRoomInfoPoints}
+                        />
+                        {/* <LiveSection
+                            isLive={isLive} setIsLive={setIsLive}
+                        /> */}
+                       <div className="col-lg-4"
+                       style={{visibility : isTimer ? 'hidden' : 'visible'}}
+                        >
                             <div className="content-card Vide_section">
                                 <div className="card-title">
                                     <h5>{t("Live")}</h5>
                                     {/* <video src="assets/live_video/live_video.mp4" style="height: 812px; width: 375px;"></video> */}
-                                    <img src="assets/img/bg_img.jpg" alt="" className="img-fluid" />
+                                    {/* <img src="../assets/img/bg_img.jpg" alt="" className="img-fluid" /> */}
+                                    {isLive && <div id='live-video'></div>}
+                                    {!isLive && <div>
+                                        <Webcam
+                                            // height={720}
+                                            // width={320}
+                                            videoConstraints={videoConstraints}
+                                        />
+                                    </div>
+                                    }
                                     <a className="button-popup" href="#popup1">
                                         <i className="fa-solid fa-gift" />
                                     </a>
@@ -276,7 +327,7 @@ function StreamerIndex(props) {
                                             <div className="content-box">
                                                 <div className="box">
                                                     <img
-                                                        src="assets/img/popup_img.png"
+                                                        src="../assets/img/popup_img.png"
                                                         alt=""
                                                         className="profile-img"
                                                     />
@@ -285,24 +336,24 @@ function StreamerIndex(props) {
                                                         <ul>
                                                             <li>
                                                                 <img
-                                                                    src="assets/img/240_F_105573812_cvD4P5jo6tMPhZULX324qUYFbNpXlisD-removebg-preview 1.png"
+                                                                    src="../assets/img/240_F_105573812_cvD4P5jo6tMPhZULX324qUYFbNpXlisD-removebg-preview 1.png"
                                                                     alt=""
                                                                 />
                                                                 <p>赤にベット</p>
                                                                 <p>
-                                                                    <img src="assets/img/Frame.png" alt="" />
+                                                                    <img src="../assets/img/Frame.png" alt="" />
                                                                     100€
                                                                 </p>
                                                             </li>
                                                             <li style={{ marginTop: "0.7rem !important" }}>
                                                                 <img
-                                                                    src="assets/img/AdobeStock_541812547_Preview 1.png"
+                                                                    src="../assets/img/AdobeStock_541812547_Preview 1.png"
                                                                     alt=""
                                                                 />
                                                                 <p>赤にベット</p>
                                                                 <p>
                                                                     <img
-                                                                        src="assets/img/Frame.png"
+                                                                        src="../assets/img/Frame.png"
                                                                         alt=""
                                                                         className="img-fluid"
                                                                     />
@@ -311,14 +362,14 @@ function StreamerIndex(props) {
                                                             </li>
                                                         </ul>
                                                         <h6>
-                                                            <b>AMY’s Birthday Number</b>
+                                                            <b>{t("AMY’s Birthday Number")}</b>
                                                         </h6>
                                                         <ul>
                                                             <li>
                                                                 <h4 className="red">3</h4>
                                                                 <p>赤にベット</p>
                                                                 <p>
-                                                                    <img src="assets/img/Frame.png" alt="" />
+                                                                    <img src="../assets/img/Frame.png" alt="" />
                                                                     100€
                                                                 </p>
                                                             </li>
@@ -326,7 +377,7 @@ function StreamerIndex(props) {
                                                                 <h4 className="black">23</h4>
                                                                 <p>赤にベット</p>
                                                                 <p>
-                                                                    <img src="assets/img/Frame.png" alt="" />
+                                                                    <img src="../assets/img/Frame.png" alt="" />
                                                                     100€
                                                                 </p>
                                                             </li>
@@ -338,45 +389,27 @@ function StreamerIndex(props) {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="col-lg-4">
-                            <div className="content-card chat_section">
-                                <div className="card-title">
-                                    <h5>{t("Chat History")}</h5>
-                                    <div className="content">
-                                        <div className="text">
-                                            {/* Map for chat */}
-                                            <div ref={divRef} style={{ overflowY: "hidden", height: "822px" }}>
-                                                {messageData && messageData.length > 0 ? messageData.map((msgDta, index) => {
-                                                    return (<ul>
-                                                        <li>
-                                                            <img src="assets/img/Ellipse 2.png" alt="" />
-                                                        </li>
-                                                        <li>
-                                                            <h6>{msgDta.streamer_name}</h6>
-                                                            <p>{msgDta.message}</p>
-                                                        </li>
-                                                    </ul>)
-
-                                                }) : null}</div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div className="send-msg">
-                                    <input
-                                        type="text"
-                                        placeholder="Comment"
-                                        maxLength={200}
-                                        value={text}
-                                        onKeyPress={(e) => (e.key == "Enter" ? sendChat() : null)}
-                                        onChange={(event) => setText(event.target.value)}
-                                    />
-
-                                </div>
+                            <div className="mt-5">
+                                {/* <input type='radio' id='host' onClick={handleHostClick} /> */}
+                                {/* <input type='radio' id='audience' onClick={handleAudienceClick} /> */}
+                                {/* <button type='button' onClick={handleJoinClick}>Join</button> */}
+                                {/* <button type='button' onClick={handleLeaveClick}>Leave</button> */}
                             </div>
+
                         </div>
-                        {/* <Chat divRef={divRef} messageData={messageData} setMessageData ={setMessageData} text ={text} setText={setText}/> */}
+                        <ChatSection
+                            divRef={divRef}
+                            messageData={messageData} setMessageData={setMessageData}
+                            text={text} setText={setText}
+                            isBlockModal={isBlockModal} setIsBlockModal={setIsBlockModal} 
+                            isNuisance ={isNuisance} setIsNuisance ={setIsNuisance}
+                            isAddicted ={isAddicted} setIsAddicted ={setIsAddicted}
+                            nuisance={nuisance}  setNuisance ={setNuisance}
+                            addicted={addicted}  setAddicted ={setAddicted}
+                            playerId={playerId} setPlayerId ={setPlayerId}
+                            playerName = {playerName} setPlayerName ={setPlayerName}
+                            
+                            />
                     </div>
                 </div>
             </div>

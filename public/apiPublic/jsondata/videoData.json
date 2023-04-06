@@ -1,0 +1,85 @@
+[
+    
+    {
+    "_id": "642513c14c21ae88aa5102da",
+    "group_id": "8533",
+    "streamer_id": "6422cd7b4612837cb3df8c45",
+    "videoinfo": [
+
+    ],
+    "status": 0,
+    "isDeleted": false,
+    "createdAt": "2023-03-30T04:44:49.765Z",
+    "updatedAt": "2023-03-30T05:19:59.786Z"
+},
+{
+    "_id": "642513c14c21ae88aa5102da",
+    "group_id": "8544",
+    "streamer_id": "6422cd7b4612837cb3df8c45",
+    "videoinfo": [
+        {
+            "title": "vr2",
+            "type": "rotation",
+            "video_url": "https://www.youtube.com/watch?v=9xwazD5SyVg",
+            "video_info": "",
+            "description": "aaa",
+            "_id": "642513c14c21ae88aa5102db"
+        },
+        {
+            "title": "vd2",
+            "type": "decision",
+            "video_url": "/streamerVideo/1680153546229.mp4",
+            "video_info": "",
+            "description": "aaa",
+            "_id": "64251bca4c21ae88aa510323"
+        },
+        {
+            "title": "vb2",
+            "type": "betting",
+            "video_url": "/streamerVideo/1680153599685.mp4",
+            "video_info": "",
+            "description": "aaa",
+            "_id": "64251bff4c21ae88aa510329"
+        }
+    ],
+    "status": 1,
+    "isDeleted": false,
+    "createdAt": "2023-03-30T04:44:49.765Z",
+    "updatedAt": "2023-03-30T05:19:59.786Z"
+},
+{
+    "_id": "642513c14c21ae88aa5102da",
+    "group_id": "85462",
+    "streamer_id": "6422cd7b4612837cb3df8c45",
+    "videoinfo": [
+        {
+            "title": "vr3",
+            "type": "rotation",
+            "video_url": "/streamerVideo/1680151489678.mp4",
+            "video_info": "",
+            "description": "aaa",
+            "_id": "642513c14c21ae88aa5102db"
+        },
+        {
+            "title": "vb3",
+            "type": "betting",
+            "video_url": "/streamerVideo/1680153546229.mp4",
+            "video_info": "",
+            "description": "aaa",
+            "_id": "64251bca4c21ae88aa510323"
+        },
+        {
+            "title": "vd3",
+            "type": "decision",
+            "video_url": "/streamerVideo/1680153599685.mp4",
+            "video_info": "",
+            "description": "aaa",
+            "_id": "64251bff4c21ae88aa510329"
+        }
+    ],
+    "status": 1,
+    "isDeleted": false,
+    "createdAt": "2023-03-30T04:44:49.765Z",
+    "updatedAt": "2023-03-30T05:19:59.786Z"
+}
+]
